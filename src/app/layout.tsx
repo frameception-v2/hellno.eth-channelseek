@@ -22,8 +22,20 @@ import {
 } from "~/components/ui/sidebar";
 
 export const metadata: Metadata = {
-  title: PROJECT_TITLE,
+  metadataBase: new URL(process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'),
+  title: {
+    default: PROJECT_TITLE,
+    template: `%s | ${PROJECT_TITLE}`,
+  },
   description: PROJECT_DESCRIPTION,
+  openGraph: {
+    title: PROJECT_TITLE,
+    description: PROJECT_DESCRIPTION,
+    url: '/',
+    siteName: PROJECT_TITLE,
+    locale: 'en_US',
+    type: 'website',
+  },
 };
 
 export default async function RootLayout({
