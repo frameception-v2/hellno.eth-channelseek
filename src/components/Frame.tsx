@@ -22,6 +22,86 @@ import { createStore } from "mipd";
 import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE } from "~/lib/constants";
 
+interface Channel {
+  id: string;
+  name: string;
+  description?: string;
+  image_url?: string;
+  follower_count?: number;
+}
+
+function ChannelResults({ query }: { query: string }) {
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    async function searchChannels() {
+      if (!query) return;
+      
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/channels/search?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        setChannels(data.channels || []);
+      } catch (error) {
+        console.error('Search error:', error);
+        setError(error instanceof Error ? error.message : 'Failed to search channels');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    searchChannels();
+  }, [query]);
+
+  if (isLoading) {
+    return <p className="text-center text-gray-500">Searching...</p>;
+  }
+
+  if (channels.length === 0) {
+    return <p className="text-center text-gray-500">No channels found</p>;
+  }
+
+  return (
+    <>
+      {channels.map((channel) => (
+        <div
+          key={channel.id}
+          className="p-3 border rounded-lg dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+        >
+          <div className="flex items-center gap-3">
+            {channel.image_url && (
+              <img
+                src={channel.image_url}
+                alt={channel.name}
+                className="w-10 h-10 rounded-full"
+              />
+            )}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold truncate">{channel.name}</h3>
+              {channel.description && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                  {channel.description}
+                </p>
+              )}
+              {channel.follower_count !== undefined && (
+                <p className="text-xs text-gray-400">
+                  {channel.follower_count.toLocaleString()} followers
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
 function ExampleCard() {
   return (
     <Card>
@@ -175,12 +255,17 @@ export default function Frame() {
           )}
           
           {/* Results Container */}
-          <div className="min-h-[200px] border rounded-lg p-2 dark:bg-gray-800 dark:border-gray-700">
+          <div className="min-h-[200px] border rounded-lg p-2 dark:bg-gray-800 dark:border-gray-700 overflow-y-auto">
             <div className="grid gap-2">
-              {/* Results will be rendered here */}
-              <p className="text-center text-gray-500 dark:text-gray-400">
-                Search for channels to begin
-              </p>
+              {error ? (
+                <p className="text-center text-red-500">{error}</p>
+              ) : debouncedQuery ? (
+                <ChannelResults query={debouncedQuery} />
+              ) : (
+                <p className="text-center text-gray-500 dark:text-gray-400">
+                  Search for channels to begin
+                </p>
+              )}
             </div>
           </div>
         </div>
