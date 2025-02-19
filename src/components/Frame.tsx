@@ -41,7 +41,7 @@ function ExampleCard() {
 export default function Frame() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<Context.FrameContext>();
-
+  const [searchQuery, setSearchQuery] = useState("");
   const [added, setAdded] = useState(false);
 
   const [addFrameResult, setAddFrameResult] = useState("");
@@ -140,7 +140,30 @@ export default function Frame() {
         <h1 className="text-2xl font-bold text-center mb-4 text-gray-700 dark:text-gray-300">
           {PROJECT_TITLE}
         </h1>
-        <ExampleCard />
+        
+        <div className="grid gap-4">
+          {/* Search Input */}
+          <div className="relative">
+            <input
+              type="search"
+              placeholder="Search channels..."
+              className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Search channels"
+            />
+          </div>
+
+          {/* Results Container */}
+          <div className="min-h-[200px] border rounded-lg p-2 dark:bg-gray-800 dark:border-gray-700">
+            <div className="grid gap-2">
+              {/* Results will be rendered here */}
+              <p className="text-center text-gray-500 dark:text-gray-400">
+                Search for channels to begin
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
