@@ -42,7 +42,17 @@ export default function Frame() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<Context.FrameContext>();
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
   const [added, setAdded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [addFrameResult, setAddFrameResult] = useState("");
 
@@ -149,11 +159,21 @@ export default function Frame() {
               placeholder="Search channels..."
               className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^\w\s-]/g, ''); // Sanitize input
+                setSearchQuery(value);
+              }}
               aria-label="Search channels"
             />
           </div>
 
+          {/* Error Display */}
+          {error && (
+            <div className="p-2 text-red-500 bg-red-100 dark:bg-red-900 rounded">
+              {error}
+            </div>
+          )}
+          
           {/* Results Container */}
           <div className="min-h-[200px] border rounded-lg p-2 dark:bg-gray-800 dark:border-gray-700">
             <div className="grid gap-2">
